@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --primary: #6B6BFF;
+    --primary-hover: #5A5AEE;
+    --bg-main: #111111;
+    --bg-side: #181818;
+    --bg-input: #252525;
+    --border: #2A2A2A;
+    --text-main: #E0E0E0;
+    --text-dim: #888888;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 11px;
+    background: var(--bg-main);
+    color: var(--text-main);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 13px; }
+  .brand svg { color: var(--primary); }
+
+  .header-btns { display: flex; gap: 8px; }
+
+  .layout {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+
+  aside {
+    width: 200px;
+    background: var(--bg-side);
+    border-right: 1px solid var(--border);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  aside.collapsed {
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    border-right: none;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  h3 {
+    text-transform: uppercase;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+  }
+
+  .control-group { display: flex; flex-direction: column; gap: 10px; }
+
+  .field label { display: block; margin-bottom: 6px; color: var(--text-dim); }
+  .field .hint { display: block; margin-top: 4px; color: #555; font-size: 9px; }
+
+  select, input[type="text"] {
+    width: 100%;
+    height: 30px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-main);
+    padding: 0 10px;
+    outline: none;
+    font-size: 11px;
+  }
+
+  select:focus, input:focus { border-color: var(--primary); }
+
+  .checkbox { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main); }
+  .checkbox input { accent-color: var(--primary); cursor: pointer; }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    position: relative;
+  }
+
+  .chip-bar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--bg-main);
+    overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .chip-bar::-webkit-scrollbar { display: none; }
+
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    white-space: nowrap;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    color: var(--text-dim);
+  }
+
+  .chip.active {
+    background: rgba(107, 107, 255, 0.15);
+    border-color: var(--primary);
+    color: #9B9BFF;
+  }
+
+  .editor-wrap { flex: 1; position: relative; min-height: 0; }
+
+  textarea {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    color: #E2E2E2;
+    border: none;
+    padding: 20px;
+    resize: none;
+    outline: none;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    tab-size: 2;
+  }
+
+  .placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #444;
+    pointer-events: none;
+    padding: 24px;
+  }
+
+  .placeholder p.error-text { color: #FF6B6B; pointer-events: auto; }
+
+  .btn {
+    height: 30px;
+    padding: 0 14px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .btn-ghost { background: var(--bg-input); color: var(--text-main); }
+  .btn-ghost:hover { background: #333; }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-hover); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    width: 100%;
+  }
+  .btn-outline:hover { color: white; border-color: #555; }
+
+  .badge {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: #181818;
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: #777;
+    font-size: 10px;
+    display: flex;
+    gap: 5px;
+  }
+  .badge span { color: #AAA; font-weight: 600; }
+
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #27C93F;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    transform: translateY(-50px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { background: #E5484D; }
+
+  .toggle-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+  .toggle-btn:hover { background: var(--bg-input); color: var(--text-main); }
+  .toggle-btn svg { transition: transform 0.3s; }
+  aside.collapsed ~ .toggle-btn svg { transform: rotate(180deg); }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>
+    <button class="toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="9" y1="3" x2="9" y2="21"></line>
+      </svg>
+    </button>
+    Token.CSS Pro
+  </div>
+  <div class="header-btns">
+    <button class="btn btn-ghost" onclick="refresh()">Refresh</button>
+    <button class="btn btn-primary" onclick="copyCSS()">Copy CSS</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="control-group">
+      <h3>Output Config</h3>
+      <div class="field">
+        <label>CSS Selector</label>
+        <select id="scopeSelect">
+          <option value=":root">Global :root</option>
+          <option value="none">No wrapper</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Global Prefix</label>
+        <input type="text" id="globalPrefix" placeholder="e.g. ds-" maxlength="24">
+        <span class="hint">Prepended to every variable, e.g. --ds-color-blue</span>
+      </div>
+      <label class="checkbox">
+        <input type="checkbox" id="optCollectionPrefix"> Prefix with Collection Name
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" id="optCleanNames" checked> Simplify Names (strip redundant words)
+      </label>
+    </div>
+
+    <div class="control-group">
+      <h3>Options</h3>
+      <label class="checkbox"><input type="checkbox" id="optHeaders" checked> Include Headers</label>
+      <label class="checkbox"><input type="checkbox" id="optPx" checked> Add PX to Numbers</label>
+      <label class="checkbox"><input type="checkbox" id="optPretty" checked> Pretty Print</label>
+      <label class="checkbox"><input type="checkbox" id="optThemes" checked> Export Extra Modes as Themes</label>
+    </div>
+
+    <div style="flex:1"></div>
+
+    <button id="downloadBtn" class="btn btn-outline" onclick="downloadCSS()">Download tokens.css</button>
+  </aside>
+
+  <main>
+    <div class="chip-bar" id="chipBar">
+      <!-- Chips added dynamically -->
+    </div>
+
+    <div class="editor-wrap">
+      <div class="placeholder" id="placeholder">
+        <p>Connecting to Figma...</p>
+      </div>
+      <textarea id="output" spellcheck="false" readonly style="display:none;"></textarea>
+
+      <div class="badge" id="badge" style="display:none;">
+        <div id="statTokens"><span>0</span> tokens</div>
+        <div style="opacity:0.3">|</div>
+        <div id="statFound">found <span>0</span> in Figma</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<script>
+  let rawData = {};
+  let selectedCollections = new Set();
+  const COLLECTION_ICONS = {
+    'colors': '🎨',
+    'color': '🎨',
+    'spacing': '📏',
+    'space': '📏',
+    'typography': '🔤',
+    'font': '🔤',
+    'gap': '📐',
+    'radius': '⭕'
+  };
+
+  window.onload = () => {
+    parent.postMessage({ pluginMessage: { type: 'load-tokens' } }, '*');
+
+    ['scopeSelect', 'globalPrefix', 'optCollectionPrefix', 'optCleanNames',
+     'optHeaders', 'optPx', 'optPretty', 'optThemes'].forEach(id => {
+      const el = document.getElementById(id);
+      const evt = el.tagName === 'INPUT' && el.type === 'text' ? 'input' : 'change';
+      el.addEventListener(evt, generate);
+    });
+  };
+
+  window.onmessage = (event) => {
+    const msg = event.data.pluginMessage;
+    if (!msg) return;
+
+    if (msg.type === 'tokens') {
+      rawData = msg.data;
+      buildChipBar();
+      generate();
+    } else if (msg.type === 'no-tokens') {
+      showError('No variables found in this file.');
+    } else if (msg.type === 'error') {
+      showError(msg.message || 'Something went wrong while reading variables.');
+      showToast(msg.message || 'Failed to load tokens', true);
+    }
+  };
+
+  function iconFor(name) {
+    const lowerName = name.toLowerCase();
+    for (const [key, emoji] of Object.entries(COLLECTION_ICONS)) {
+      if (lowerName.includes(key)) return emoji;
+    }
+    return '📦';
+  }
+
+  function buildChipBar() {
+    const bar = document.getElementById('chipBar');
+    bar.innerHTML = '';
+    selectedCollections = new Set(Object.keys(rawData));
+
+    const createChip = (name, id, active = true) => {
+      const chip = document.createElement('div');
+      chip.className = `chip ${active ? 'active' : ''}`;
+
+      const iconSpan = document.createElement('span');
+      iconSpan.textContent = iconFor(name);
+      chip.appendChild(iconSpan);
+      chip.appendChild(document.createTextNode(' ' + name));
+
+      chip.onclick = () => {
+        chip.classList.toggle('active');
+        if (chip.classList.contains('active')) selectedCollections.add(id);
+        else selectedCollections.delete(id);
+        generate();
+      };
+      return chip;
+    };
+
+    for (const name of Object.keys(rawData)) {
+      bar.appendChild(createChip(name, name));
+    }
+  }
+
+  function sanitizePrefix(raw) {
+    return (raw || '')
+      .replace(/[^a-zA-Z0-9-_]/g, '')
+      .replace(/^-+/, '')
+      .toLowerCase();
+  }
+
+  function formatName(name, colName, opts) {
+    let parts = name.split('/').map(p => p.trim());
+
+    if (opts.cleanNames) {
+      const strip = ['primitive', 'primitives', 'collection', 'mode', 'default', 'colors', 'color', 'spacing', 'space', 'typography', 'font'];
+      parts = parts.filter((p, i) => {
+        if (i === 0 && strip.includes(p.toLowerCase())) return true;
+        return !strip.includes(p.toLowerCase());
+      });
+      parts = parts.filter((p, i) => parts.indexOf(p) === i);
+    }
+
+    if (opts.collectionPrefix && colName) {
+      const colKebabCheck = colName.toLowerCase().replace(/\s+/g, '-');
+      const firstPartKebab = (parts[0] || '').toLowerCase().replace(/\s+/g, '-');
+      if (firstPartKebab !== colKebabCheck) {
+        parts = [colName, ...parts];
+      }
+    }
+
+    let kebab = parts.join('-')
+      .replace(/\s+/g, '-')
+      .replace(/[^a-zA-Z0-9-_]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .toLowerCase();
+
+    const prefix = sanitizePrefix(opts.globalPrefix);
+    return `--${prefix}${kebab}`;
+  }
+
+  function formatValue(tokenObj, opts) {
+    if (!tokenObj) return '';
+
+    if (tokenObj.type === 'REFERENCE') {
+      return `var(${formatName(tokenObj.name, tokenObj.collection, opts)})`;
+    }
+
+    let val = tokenObj.value;
+    if (typeof val === 'number' && opts.addPx) {
+      const name = tokenObj.name || '';
+      const lowerName = name.toLowerCase();
+      const noPx = ['opacity', 'lineheight', 'zindex', 'fontweight', 'alpha', 'scale'];
+      if (!noPx.some(s => lowerName.includes(s))) {
+        return `${val}px`;
+      }
+    }
+    return String(val);
+  }
+
+  function valueKey(tokenObj) {
+    if (!tokenObj) return '';
+    if (tokenObj.type === 'REFERENCE') return `ref:${tokenObj.name}`;
+    return `val:${tokenObj.value}`;
+  }
+
+  function buildOptions() {
+    return {
+      scope: document.getElementById('scopeSelect').value,
+      globalPrefix: document.getElementById('globalPrefix').value,
+      collectionPrefix: document.getElementById('optCollectionPrefix').checked,
+      cleanNames: document.getElementById('optCleanNames').checked,
+      addPx: document.getElementById('optPx').checked,
+      useHeaders: document.getElementById('optHeaders').checked,
+      pretty: document.getElementById('optPretty').checked,
+      exportThemes: document.getElementById('optThemes').checked
+    };
+  }
+
+  function indent(line, opts) {
+    if (!opts.pretty) return line.trim();
+    return `  ${line}`;
+  }
+
+  function buildBlock(selector, colEntries, opts) {
+    const lines = [];
+    let count = 0;
+
+    for (const entry of colEntries) {
+      if (entry.lines.length === 0) continue;
+      if (opts.useHeaders) {
+        lines.push(indent(`/* --- ${iconFor(entry.colName)}  ${entry.colName}  --- */`, opts));
+      }
+      for (const l of entry.lines) {
+        lines.push(indent(l, opts));
+        count++;
+      }
+      if (opts.pretty) lines.push('');
+    }
+
+    if (count === 0) return { css: '', count: 0 };
+
+    const body = opts.pretty ? lines.join('\n').replace(/\n+$/, '') : lines.join('\n');
+
+    let css;
+    if (selector === 'none') {
+      css = body;
+    } else {
+      css = opts.pretty ? `${selector} {\n${body}\n}` : `${selector}{${body}}`;
+    }
+    return { css, count };
+  }
+
+  function generate() {
+    const opts = buildOptions();
+
+    updateDownloadButtonText();
+
+    let tokenCount = 0;
+    let foundTotal = 0;
+
+    const defaultEntries = [];
+    const themeEntries = {};
+
+    for (const [colName, colData] of Object.entries(rawData)) {
+      foundTotal += colData.tokens.length;
+      if (!selectedCollections.has(colName)) continue;
+
+      const modes = colData.modes || [];
+      const defaultModeName = modes.length ? modes[0].name : null;
+
+      const defaultLines = [];
+      const themeLinesByMode = {};
+
+      colData.tokens.forEach(t => {
+        if (!defaultModeName || !(defaultModeName in t.values)) return;
+
+        const varName = formatName(t.name, colName, opts);
+        const defaultVal = t.values[defaultModeName];
+        defaultLines.push(`${varName}: ${formatValue(defaultVal, opts)};`);
+        tokenCount++;
+
+        if (opts.exportThemes && modes.length > 1) {
+          for (let i = 1; i < modes.length; i++) {
+            const modeName = modes[i].name;
+            const modeVal = t.values[modeName];
+            if (!modeVal) continue;
+            if (valueKey(modeVal) === valueKey(defaultVal)) continue;
+            if (!themeLinesByMode[modeName]) themeLinesByMode[modeName] = [];
+            themeLinesByMode[modeName].push(`${varName}: ${formatValue(modeVal, opts)};`);
+          }
+        }
+      });
+
+      defaultEntries.push({ colName, lines: defaultLines });
+
+      for (const [modeName, lines] of Object.entries(themeLinesByMode)) {
+        if (!themeEntries[modeName]) themeEntries[modeName] = [];
+        themeEntries[modeName].push({ colName, lines });
+      }
+    }
+
+    const outputArea = document.getElementById('output');
+    const placeholder = document.getElementById('placeholder');
+    const badge = document.getElementById('badge');
+
+    if (tokenCount === 0) {
+      outputArea.style.display = 'none';
+      placeholder.style.display = 'flex';
+      badge.style.display = 'none';
+      return;
+    }
+
+    const rootSelector = opts.scope === ':root' ? ':root' : 'none';
+    const blocks = [];
+
+    const baseBlock = buildBlock(rootSelector, defaultEntries, opts);
+    if (baseBlock.css) blocks.push(baseBlock.css);
+
+    for (const [modeName, entries] of Object.entries(themeEntries)) {
+      const safeModeName = modeName.replace(/"/g, '\\"');
+      const themeSelector = `[data-theme="${safeModeName}"]`;
+      const themeBlock = buildBlock(themeSelector, entries, opts);
+      if (themeBlock.css) blocks.push(themeBlock.css);
+    }
+
+    const finalCSS = opts.pretty ? blocks.join('\n\n') : blocks.join('');
+
+    outputArea.value = finalCSS;
+    outputArea.style.display = 'block';
+    placeholder.style.display = 'none';
+    badge.style.display = 'flex';
+
+    document.getElementById('statTokens').querySelector('span').textContent = tokenCount;
+    document.getElementById('statFound').querySelector('span').textContent = foundTotal;
+  }
+
+  function updateDownloadButtonText() {
+    const btn = document.getElementById('downloadBtn');
+    if (!btn || !rawData) return;
+
+    let filename = 'tokens.css';
+    const selectedArray = Array.from(selectedCollections);
+
+    if (selectedArray.length === 1) {
+      filename = `${selectedArray[0].replace(/[\/\\?%*:|"<>]/g, '-').replace(/\s+/g, '-')}.css`;
+    }
+
+    btn.textContent = `Download ${filename}`;
+  }
+
+  function showToast(message, isError = false) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.toggle('error', !!isError);
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  function copyCSS() {
+    const val = document.getElementById('output').value;
+    if (!val) return;
+    navigator.clipboard.writeText(val).then(() => {
+      showToast('Copied to clipboard!');
+    }).catch(() => {
+      showToast('Could not copy — try selecting the text manually.', true);
+    });
+  }
+
+  function downloadCSS() {
+    const val = document.getElementById('output').value;
+    if (!val) return;
+
+    let filename = 'tokens.css';
+    const selectedArray = Array.from(selectedCollections);
+    if (selectedArray.length === 1) {
+      filename = `${selectedArray[0].replace(/[\/\\?%*:|"<>]/g, '-').replace(/\s+/g, '-')}.css`;
+    }
+
+    const url = 'data:text/css;charset=utf-8,' + encodeURIComponent(val);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', filename);
+    a.click();
+  }
+
+  function toggleSidebar() {
+    const aside = document.querySelector('aside');
+    if (!aside) return;
+
+    const isCollapsed = aside.classList.toggle('collapsed');
+    const toggleBtn = document.querySelector('.toggle-btn svg');
+
+    if (toggleBtn) {
+      toggleBtn.style.transform = isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+  }
+
+  function refresh() {
+    document.getElementById('placeholder').innerHTML = '<p>Connecting to Figma...</p>';
+    document.getElementById('placeholder').style.display = 'flex';
+    document.getElementById('output').style.display = 'none';
+    document.getElementById('badge').style.display = 'none';
+    parent.postMessage({ pluginMessage: { type: 'load-tokens' } }, '*');
+  }
+
+  // Safe against injection: uses textContent, never innerHTML, so any
+  // message coming back from the plugin sandbox can never be parsed as HTML.
+  function showError(msg) {
+    const placeholder = document.getElementById('placeholder');
+    placeholder.innerHTML = '';
+    const p = document.createElement('p');
+    p.className = 'error-text';
+    p.textContent = msg;
+    placeholder.appendChild(p);
+    placeholder.style.display = 'flex';
+    document.getElementById('output').style.display = 'none';
+    document.getElementById('badge').style.display = 'none';
+  }
+
+</script>
+</body>
+</html>
