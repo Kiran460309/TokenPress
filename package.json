@@ -1,0 +1,15 @@
+{
+  "name": "token-css-exporter-pro",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Figma plugin to export variables to CSS custom properties",
+  "scripts": {
+    "build": "tsc && node build.js",
+    "test": "node --experimental-strip-types --test tests/utils.test.ts"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.100.0",
+    "typescript": "^5.5.4",
+    "esbuild": "^0.24.0"
+  }
+}
