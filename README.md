@@ -3,7 +3,7 @@
 A Figma plugin that transforms design tokens (Figma Variables) into production-ready CSS custom properties.
 
 ## Features
-
+ 
 - **Recursive Alias Resolution**: Resolves complex alias chains to their final variable names (not internal IDs), including references across collections.
 - **Multi-Mode / Theme Export**: The first mode in each collection becomes the `:root` (or unwrapped) baseline. Every additional mode (e.g. "Dark") is exported as a `[data-theme="..."]` block containing only the tokens whose value actually differs from the default — so theme blocks stay small and meaningful instead of duplicating every token.
 - **Production-Ready Naming**:
