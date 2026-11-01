@@ -1,4 +1,3 @@
-
 # Token → CSS Exporter Pro — Figma Plugin 
  
 A Figma plugin that transforms design tokens (Figma Variables) into production-ready CSS custom properties.
