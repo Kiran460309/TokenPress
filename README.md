@@ -24,7 +24,7 @@ A Figma plugin that transforms design tokens (Figma Variables) into production-r
 3. Select the `manifest.json` file from this folder.
 4. Run via **Plugins → Development → Token → CSS Exporter Pro**.
 
-## CSS Output Example
+## CSS Output Example  
 
 Given a collection with modes `Light` (default) and `Dark`, where `--button-bg` aliases a color that differs per mode:
 
